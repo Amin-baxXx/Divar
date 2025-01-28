@@ -21,7 +21,7 @@ html {
   color: var(--text-color);
 }
 body {
-  font-family: "iransans-regular";
+  font-family: "iransans-regular", sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
