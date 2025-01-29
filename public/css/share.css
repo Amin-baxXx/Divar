@@ -1075,7 +1075,7 @@ button {
   border-radius: 50%;
   border-top-color: #e6e6e6;
   animation: spin 1s ease-in-out infinite;
-  -webkit-animation: spin 1s ease-in-out infinite;
+  -webkit-animation: spin 1s linear infinite;
 }
 #loading-container {
   position: fixed;
