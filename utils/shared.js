@@ -28,4 +28,9 @@ const getPosts = async (citiesID) => {
   const postes = await url.json();
   return postes;
 };
-export { baseUrl, getAllCities, getAndShowSocials, getPosts };
+const getCategories = async () => {
+  const res = await fetch(`${baseUrl}/v1/category`);
+  const response = await res.json();
+  return response.data.categories;
+};
+export { baseUrl, getAllCities, getAndShowSocials, getPosts, getCategories };

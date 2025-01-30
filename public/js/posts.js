@@ -1,5 +1,9 @@
-import { baseUrl, getPosts } from "../../utils/shared.js";
-import { getFromLocalStorage } from "../../utils/utils.js";
+import { baseUrl, getPosts, getCategories } from "../../utils/shared.js";
+import {
+  getFromLocalStorage,
+  addParamToUrl,
+  calculateRelativeTimeDefference,
+} from "../../utils/utils.js";
 
 window.addEventListener("load", () => {
   const loadingContainer = document.querySelector("#loading-container");
@@ -13,12 +17,12 @@ window.addEventListener("load", () => {
 
     generatePosts(posts);
   });
-
   const generatePosts = (posts) => {
-    console.log("Posts ->", posts);
     const postsContainer = document.querySelector("#posts-container");
     if (posts.length) {
       posts.forEach((post) => {
+        const date = calculateRelativeTimeDefference(post.createdAt);
+
         postsContainer.insertAdjacentHTML(
           "beforeend",
           `
@@ -39,7 +43,7 @@ window.addEventListener("load", () => {
                           : post.price.toLocaleString() + " تومان"
                       }
                     </span>
-                    <span class="product-card__time">Date</span>
+                    <span class="product-card__time">${date}</span>
                   </div>
                 </div>
                 <div class="product-card__left">
@@ -68,4 +72,28 @@ window.addEventListener("load", () => {
       postsContainer.innerHTML = '<p class="empty">آگهی یافت نشد</p>';
     }
   };
+  // Add Category
+  window.categoryClickHandler = (categoryID) => {
+    addParamToUrl("categoryID", categoryID);
+  };
+
+  getCategories().then((category) => {
+    const categoriesContainer = document.querySelector("#categories-container");
+    loadingContainer.style.display = "none";
+    categoriesContainer.innerHTML = "";
+    category.forEach((category) => {
+      categoriesContainer.insertAdjacentHTML(
+        "beforeend",
+        `
+          <div class="sidebar__category-link" id="category-${category._id}">
+<div class="sidebar__category-link_details" onclick="categoryClickHandler('${category._id}')">
+          <i class="sidebar__category-icon bi bi-house"></i>
+          <p  class="sidebar__category-title" >${category.title}</p>
+
+          </div>
+          </div>
+          `,
+      );
+    });
+  });
 });
