@@ -1,7 +1,7 @@
 const saveLocalStorage = (key, value) => {
   localStorage.setItem(key, JSON.stringify(value));
 };
-const getLocalStorage = (key) => {
-  return localStorage.getItem(key);
+const getFromLocalStorage = (key) => {
+  return JSON.parse(localStorage.getItem(key));
 };
-export { getLocalStorage, saveLocalStorage };
+export { getFromLocalStorage, saveLocalStorage };

@@ -11,17 +11,21 @@ const getAndShowSocials = async () => {
   const socialMediaContainer = document.querySelector("#footer__social-media");
   const res = await fetch(`${baseUrl}/v1/social`);
   const socialsResponse = await res.json();
-  console.log(socialsResponse.data.socials);
   socialsResponse.data.socials.forEach((social) => {
+    console.log(social.icon.path);
     socialMediaContainer.insertAdjacentHTML(
       "beforeend",
       `
         <a href="${social.link}" class="sidebar__icon-link">
-            <img width="18px" height="18px" alt="${social.name}" src="${social.icon.filename}" class="sidebar__icon bi bi-twitter" />
+            <img width="18px" height="18px" alt="${social.name}" src="${baseUrl}/${social.icon.path}" class="sidebar__icon bi bi-twitter"/>
         </a>
-      `
+      `,
     );
   });
 };
-
-export { baseUrl, getAllCities, getAndShowSocials };
+const getPosts = async (citiesID) => {
+  const url = await fetch(`${baseUrl}/v1/post/?city=${citiesID}`);
+  const postes = await url.json();
+  return postes;
+};
+export { baseUrl, getAllCities, getAndShowSocials, getPosts };
