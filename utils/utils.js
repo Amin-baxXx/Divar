@@ -4,6 +4,10 @@ const saveLocalStorage = (key, value) => {
 const getFromLocalStorage = (key) => {
   return JSON.parse(localStorage.getItem(key));
 };
+const getUrlParam = (param) => {
+  const urlParam = new URLSearchParams(window.location.search);
+  return urlParam.get(param);
+};
 const addParamToUrl = (param, value) => {
   const url = new URL(location.href);
   const searchParams = url.searchParams;
@@ -11,11 +15,17 @@ const addParamToUrl = (param, value) => {
   url.search = searchParams.toString();
   location.href = url.toString();
 };
-const calculateRelativeTimeDefference = (createdAt) => {
+const removeParamFromUrl = (param) => {
+  const url = new URL(location.href);
+  url.searchParams.delete(param);
+  window.history.replaceState(null, null, url);
+  location.reload();
+};
+const calcuteRelativeTimeDifference = (createdAt) => {
   const currentTime = new Date();
   const createdTime = new Date(createdAt);
   const timeDiff = currentTime - createdTime;
-  const hours = Math.floor(timeDiff / (60 * 60 * 1000));
+  const hours = Math.floor(timeDiff / 3600000);
   if (hours < 24) {
     return `${hours} ساعت `;
   } else {
@@ -23,9 +33,21 @@ const calculateRelativeTimeDefference = (createdAt) => {
     return `  ${days} روز پیش `;
   }
 };
+const showModal = (id, className) => {
+  const element = document.querySelector(`#${id}`);
+  element?.classList.add(className);
+};
+const hideModal = (id, className) => {
+  const element = document.querySelector(`#${id}`);
+  element?.classList.remove(className);
+};
 export {
   getFromLocalStorage,
   saveLocalStorage,
   addParamToUrl,
-  calculateRelativeTimeDefference,
+  calcuteRelativeTimeDifference,
+  getUrlParam,
+  removeParamFromUrl,
+  showModal,
+  hideModal,
 };

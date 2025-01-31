@@ -1,4 +1,6 @@
 "use strict";
+import { getUrlParam } from "./utils.js";
+
 const baseUrl = "https://divarapi.liara.run";
 
 const getAllCities = async () => {
@@ -12,7 +14,6 @@ const getAndShowSocials = async () => {
   const res = await fetch(`${baseUrl}/v1/social`);
   const socialsResponse = await res.json();
   socialsResponse.data.socials.forEach((social) => {
-    console.log(social.icon.path);
     socialMediaContainer.insertAdjacentHTML(
       "beforeend",
       `
@@ -23,14 +24,31 @@ const getAndShowSocials = async () => {
     );
   });
 };
-const getPosts = async (citiesID) => {
-  const url = await fetch(`${baseUrl}/v1/post/?city=${citiesID}`);
-  const postes = await url.json();
-  return postes;
+
+const getPosts = async (citiesIDs) => {
+  const categotyID = getUrlParam("categoryID");
+  const searchValue = getUrlParam("value");
+  let url = await `${baseUrl}/v1/post/?city=${citiesIDs}`;
+  if (categotyID) {
+    url += `&categoryId=${categotyID}`;
+  }
+  if (searchValue) {
+    url += `&search=${searchValue}`;
+  }
+  let res = await fetch(url);
+  const posts = await res.json();
+  return posts;
 };
-const getCategories = async () => {
+const getPostCategories = async () => {
   const res = await fetch(`${baseUrl}/v1/category`);
   const response = await res.json();
   return response.data.categories;
 };
-export { baseUrl, getAllCities, getAndShowSocials, getPosts, getCategories };
+
+export {
+  baseUrl,
+  getAllCities,
+  getAndShowSocials,
+  getPosts,
+  getPostCategories,
+};
