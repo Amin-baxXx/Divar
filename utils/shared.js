@@ -8,7 +8,11 @@ const getAllCities = async () => {
   const cities = await res.json();
   return cities;
 };
-
+const getAllLocations = async () => {
+  const res = await fetch(`${baseUrl}/v1/location`);
+  const response = await res.json();
+  return response.data;
+};
 const getAndShowSocials = async () => {
   const socialMediaContainer = document.querySelector("#footer__social-media");
   const res = await fetch(`${baseUrl}/v1/social`);
@@ -70,4 +74,5 @@ export {
   getPosts,
   getPostCategories,
   getAndShowHeaderCityLocation,
+  getAllLocations,
 };
