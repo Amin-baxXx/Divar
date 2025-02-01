@@ -11,19 +11,22 @@ window.addEventListener("load", () => {
   const categoryID = getUrlParam("categoryID");
   const searchValue = getUrlParam("value");
   const loadingContainer = document.querySelector("#loading-container");
-
+  let posts = null;
+  let backupposts = null;
   const cities = getFromLocalStorage("cities");
 
   getPosts(cities[0].id).then((response) => {
     loadingContainer.style.display = "none";
 
-    const posts = response.data.posts;
+    posts = response.data.posts;
+    backupposts = response.data.posts;
 
     generatePosts(posts);
   });
 
   const generatePosts = (posts) => {
     const postsContainer = document.querySelector("#posts-container");
+    postsContainer.innerHTML = "";
     if (posts.length) {
       posts.forEach((post) => {
         const date = calcuteRelativeTimeDifference(post.createdAt);
@@ -308,5 +311,29 @@ window.addEventListener("load", () => {
 
   removeSearchValueIcon.addEventListener("click", () => {
     removeParamFromUrl("value");
+  });
+
+  const justPhotoController = document.querySelector("#just_photo_controll");
+  const exchangeController = document.querySelector("#exchange_controll");
+  const applyFilters = (posts) => {
+    let filiteredPosts = backupposts;
+    if (justPhotoController.checked) {
+      filiteredPosts = filiteredPosts.filter((post) => {
+        return post.pics.length > 0;
+      });
+      generatePosts(filtereed);
+    }
+    if (exchangeController.checked) {
+      filiteredPosts = filiteredPosts.filter((post) => {
+        return post.exchange;
+      });
+    }
+    generatePosts(filiteredPosts);
+  };
+  justPhotoController.addEventListener("change", () => {
+    applyFilters(posts);
+  });
+  exchangeController.addEventListener("change", () => {
+    applyFilters(posts);
   });
 });

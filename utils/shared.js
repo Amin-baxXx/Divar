@@ -35,6 +35,7 @@ const getPosts = async (citiesIDs) => {
   if (searchValue) {
     url += `&search=${searchValue}`;
   }
+
   let res = await fetch(url);
   const posts = await res.json();
   return posts;
