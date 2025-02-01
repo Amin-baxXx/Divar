@@ -1,3 +1,4 @@
+"use strict";
 import { baseUrl, getPostCategories, getPosts } from "../../utils/shared.js";
 import {
   addParamToUrl,
@@ -13,6 +14,7 @@ window.addEventListener("load", () => {
   const loadingContainer = document.querySelector("#loading-container");
   let posts = null;
   let backupposts = null;
+  const appliedFilters = {};
   const cities = getFromLocalStorage("cities");
 
   getPosts(cities[0].id).then((response) => {
@@ -27,7 +29,7 @@ window.addEventListener("load", () => {
   const generatePosts = (posts) => {
     const postsContainer = document.querySelector("#posts-container");
     postsContainer.innerHTML = "";
-    if (posts.length) {
+    if (posts?.length) {
       posts.forEach((post) => {
         const date = calcuteRelativeTimeDifference(post.createdAt);
         postsContainer.insertAdjacentHTML(
@@ -47,7 +49,7 @@ window.addEventListener("load", () => {
                       ${
                         post.price === 0
                           ? "توافقی"
-                          : post.price.toLocaleString() + " تومان"
+                          : `${post.price.toLocaleString()}    تومان `
                       }
                     </span>
                     <span class="product-card__time">${date}</span>
@@ -266,7 +268,7 @@ window.addEventListener("load", () => {
                       data-bs-parent="#accordionFlushExample"
                     >
                       <div class="accordion-body">
-                        <select class="selectbox">
+                        <select class="selectbox" onchange="selectBoxFilterHandler(this.value,'${filter.slug}')">
                           ${filter.options
                             .sort((a, b) => b - a)
                             .map(
@@ -315,25 +317,69 @@ window.addEventListener("load", () => {
 
   const justPhotoController = document.querySelector("#just_photo_controll");
   const exchangeController = document.querySelector("#exchange_controll");
+  const minPriceSelectBox = document.querySelector("#min-price-selectbox");
+  const maxPriceSelectBox = document.querySelector("#max-price-selectbox");
+  //
+
   const applyFilters = (posts) => {
     let filiteredPosts = backupposts;
+    for (const slug in appliedFilters) {
+      filiteredPosts = filiteredPosts.filter((post) => {
+        return post.dynamicFields.some((field) => {
+          return field.slug === slug && field.data === appliedFilters[slug];
+        });
+      });
+    }
     if (justPhotoController.checked) {
       filiteredPosts = filiteredPosts.filter((post) => {
         return post.pics.length > 0;
       });
-      generatePosts(filtereed);
+      generatePosts(filiteredPosts);
     }
     if (exchangeController.checked) {
       filiteredPosts = filiteredPosts.filter((post) => {
         return post.exchange;
       });
     }
+    // Min Max Price
+    const minPrice = minPriceSelectBox.value;
+    const maxPrice = maxPriceSelectBox.value;
+    if (maxPrice !== "default") {
+      if (minPrice !== "default") {
+        filiteredPosts = filiteredPosts.filter((post) => {
+          return post.price <= maxPrice && post.price >= minPricer;
+        });
+      } else {
+        filiteredPosts = filiteredPosts.filter((post) => {
+          return post.price <= maxPrice;
+        });
+      }
+    } else {
+      if (minPrice !== "default") {
+        filiteredPosts = filiteredPosts.filter((post) => {
+          return post.price >= minPrice;
+        });
+      }
+      //   COdes
+    }
     generatePosts(filiteredPosts);
   };
-  justPhotoController.addEventListener("change", () => {
+
+  minPriceSelectBox.addEventListener("change", () => {
     applyFilters(posts);
   });
-  exchangeController.addEventListener("change", () => {
+  maxPriceSelectBox.addEventListener("change", () => {
     applyFilters(posts);
   });
+  justPhotoController.addEventListener("change", (posts) => {
+    applyFilters();
+  });
+  exchangeController.addEventListener("change", (posts) => {
+    applyFilters();
+  });
+  window.selectBoxFilterHandler = (value, slug) => {
+    appliedFilters[slug] = value;
+    console.log({ slug, value });
+    applyFilters();
+  };
 });

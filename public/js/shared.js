@@ -1,10 +1,14 @@
 "use strict";
 
-import { getAndShowSocials } from "../../utils/shared.js";
+import {
+  getAndShowSocials,
+  getAndShowHeaderCityLocation,
+} from "../../utils/shared.js";
 import { showModal, hideModal } from "../../utils/utils.js";
 
 window.addEventListener("load", () => {
   getAndShowSocials();
+  getAndShowHeaderCityLocation();
   const globalSearchInput = document.getElementById("global_search_input");
   const searchbarModalOverlay = document.querySelector(
     ".searchbar__modal-overlay",
