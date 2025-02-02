@@ -45,8 +45,6 @@ window.addEventListener("load", () => {
     removeParamFromUrl("categoryID");
   });
   getPostCategories().then((categories) => {
-    console.log("Categories ->", categories);
-
     categories.forEach((category) => {
       categoriesList.insertAdjacentHTML(
         "beforeend",
@@ -79,14 +77,14 @@ window.addEventListener("load", () => {
           `
             <div>
               <ul class="header__category-dropdown-list">
-                <div class="header__category-dropdown-title">${
+                <div class="header__category-dropdown-title" onclick="categoryClickHandler('${subCategory._id}')">${
                   subCategory.title
                 }</div>
                 ${subCategory.subCategories
                   .map(
                     (subSubCategory) => `
                     <li class="header__category-dropdown-item">
-                      <div class="header__category-dropdown-link">${subSubCategory.title}</div>
+                      <div onclick="categoryClickHandler('${subSubCategory._id}')" class="header__category-dropdown-link">${subSubCategory.title}</div>
                     </li>
                   `,
                   )
@@ -96,6 +94,10 @@ window.addEventListener("load", () => {
           `,
         );
       });
+    };
+    showActiveCategorySubs(categories[0]._id);
+    window.categoryClickHandler = (categoryID) => {
+      addParamToUrl("categoryID", categoryID);
     };
   });
   headerCategoryBtn?.addEventListener("click", () => {

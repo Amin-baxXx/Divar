@@ -41,6 +41,9 @@ const hideModal = (id, className) => {
   const element = document.querySelector(`#${id}`);
   element?.classList.remove(className);
 };
+const isLogin = () => {
+  return true;
+};
 export {
   getFromLocalStorage,
   saveLocalStorage,
@@ -50,4 +53,5 @@ export {
   removeParamFromUrl,
   showModal,
   hideModal,
+  isLogin,
 };
