@@ -16,13 +16,18 @@ window.addEventListener("load", () => {
   let backupposts = null;
   const appliedFilters = {};
   const cities = getFromLocalStorage("cities");
+  const citiesIDs = cities.map((city) => city.id).join("|");
+  if (cities.length <= 1) {
+    console.log(cities.length);
+    document.title = `دیوار ${cities[0].title} - نیازمندی‌ های رایگان، آگهی‌های خرید، فروش نو و دست دوم و کارکرده، استخدام و خدمات`;
+  } else {
+    document.title = `دیوار ${cities.length} شهر - نیازمندی‌ های رایگان، آگهی‌های خرید، فروش نو و دست دوم و کارکرده، استخدام و خدمات`;
+  }
 
-  getPosts(cities[0].id).then((response) => {
+  getPosts(citiesIDs).then((response) => {
     loadingContainer.style.display = "none";
-
     posts = response.data.posts;
     backupposts = response.data.posts;
-
     generatePosts(posts);
   });
 

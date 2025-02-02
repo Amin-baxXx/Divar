@@ -4,6 +4,7 @@ import {
   getAndShowSocials,
   getAndShowHeaderCityLocation,
   getAllLocations,
+  getPostCategories,
 } from "../../utils/shared.js";
 import {
   showModal,
@@ -11,6 +12,7 @@ import {
   getFromLocalStorage,
   saveLocalStorage,
   addParamToUrl,
+  removeParamFromUrl,
 } from "../../utils/utils.js";
 window.addEventListener("load", () => {
   let selectedCities = [];
@@ -26,7 +28,80 @@ window.addEventListener("load", () => {
   const cityModalCloseBtns = document.querySelector(".city-modal__close");
   const cityModalError = document.querySelector("#city_modal_error");
   const cityModalOverley = document.querySelector(".city-modal__overlay");
+  const categoriesList = document.querySelector("#categories-list");
+  const categoryResults = document.querySelector("#category-results");
+  const cityModalCitiesInput = document.querySelector(
+    "#city-modal-search-input",
+  );
+  const headerCategoryBtn = document.querySelector(".header__category-btn");
+  const allCategoriesPosts = document.querySelector("#all-categories-posts");
+  const categoryModalOverlay = document.querySelector(
+    ".category_modal_overlay",
+  );
+  categoryModalOverlay?.addEventListener("click", () => {
+    hideModal("header__category-menu", "header__category-menu--active");
+  });
+  allCategoriesPosts?.addEventListener("click", () => {
+    removeParamFromUrl("categoryID");
+  });
+  getPostCategories().then((categories) => {
+    console.log("Categories ->", categories);
 
+    categories.forEach((category) => {
+      categoriesList.insertAdjacentHTML(
+        "beforeend",
+        `
+          <li class="header__category-menu-item" onmouseenter="showActiveCategorySubs('${category._id}')">
+            <div class="header__category-menu-link">
+              <div class="header__category-menu-link-right">
+                <i class="header__category-menu-icon bi bi-house"></i>
+                ${category.title}
+              </div>
+              <div class="header__category-menu-link-left">
+                <i class="header__category-menu-arrow-icon bi bi-chevron-left"></i>
+              </div>
+            </div>
+          </li>
+        `,
+      );
+    });
+
+    window.showActiveCategorySubs = (categoryID) => {
+      const category = categories.find(
+        (category) => category._id === categoryID,
+      );
+
+      categoryResults.innerHTML = "";
+
+      category.subCategories.map((subCategory) => {
+        categoryResults.insertAdjacentHTML(
+          "beforeend",
+          `
+            <div>
+              <ul class="header__category-dropdown-list">
+                <div class="header__category-dropdown-title">${
+                  subCategory.title
+                }</div>
+                ${subCategory.subCategories
+                  .map(
+                    (subSubCategory) => `
+                    <li class="header__category-dropdown-item">
+                      <div class="header__category-dropdown-link">${subSubCategory.title}</div>
+                    </li>
+                  `,
+                  )
+                  .join("")}
+              </ul>
+            </div>
+          `,
+        );
+      });
+    };
+  });
+  headerCategoryBtn?.addEventListener("click", () => {
+    console.log("clicked");
+    showModal("header__category-menu", "header__category-menu--active");
+  });
   header__form?.addEventListener("submit", (e) => {
     e.preventDefault();
   });
@@ -68,6 +143,7 @@ window.addEventListener("load", () => {
   });
   const showProvinces = (data) => {
     citiesModalList.innerHTML = "";
+    cityModalCitiesInput.scrollTo(0, 0);
     data.provinces.forEach((province) => {
       citiesModalList?.insertAdjacentHTML(
         "beforeend",
@@ -272,5 +348,33 @@ window.addEventListener("load", () => {
       "city-modal__accept",
     );
     showProvinces(allCities);
+  });
+  cityModalCitiesInput.addEventListener("input", (e) => {
+    console.log(e.value);
+    const filteredCities = allCities.cities.filter((city) => {
+      return city.name.startsWith(e.target.value);
+    });
+    if (filteredCities.length && e.target.value.trim()) {
+      citiesModalList.innerHTML = "";
+      filteredCities.forEach((city) => {
+        const isSelect = selectedCities.some(
+          (selectedCity) => selectedCity.title === city.name,
+        );
+        citiesModalList.insertAdjacentHTML(
+          "beforeend",
+          `
+    <li class="city-modal__cities-item city-item" id="city-${city.id}">
+                <span>${city.name}</span>
+                <div id="checkboxShape" class="${isSelect && "active"}"></div>
+                <input onchange="cityItemClickHandler('${city.id}')" id="city-item-checkbox" type="checkbox" checked="${isSelect}">
+              </li>
+        
+        `,
+        );
+      });
+    } else {
+      citiesModalList.innerHTML = "";
+      showProvinces(allCities);
+    }
   });
 });
