@@ -5,6 +5,7 @@ import {
   showModal,
   showSwal,
   getToken,
+  getUrlParam,
 } from "../../utils/utils.js";
 
 window.addEventListener("load", () => {
@@ -15,19 +16,22 @@ window.addEventListener("load", () => {
     const userIsLogin = await isLogin();
     const token = await getToken();
     let noteID = null;
+    let bookmarkStatus = null;
     const postTitle = document.querySelector("#post-title");
     const postDescription = document.querySelector("#post-description");
     const postLocation = document.querySelector("#post-location");
     const postBreadCrumb = document.querySelector("#breadcrumb");
     const shareIcon = document.querySelector("#share-icon");
     const postInfos = document.querySelector("#post-infoes-list");
-    const postPreviw = document.querySelector("#post-preview");
+    const postPreview = document.querySelector("#post-preview");
     const mainSlider = document.querySelector("#main-slider-wrapper");
     const secondSlider = document.querySelector("#secend-slider-wrapper");
-    const noteTextArea = document.querySelector("#note-textarea");
+    const noteTextarea = document.querySelector("#note-textarea");
     const postFeedbackIcons = document.querySelectorAll(".post_feedback_icon");
     const phoneInfoBtn = document.querySelector("#phone-info-btn");
     const noteTrashIcon = document.querySelector("#note-trash-icon");
+    const bookMarkIconBtn = document.querySelector("#bookmark-icon-btn");
+    const bookMarkIcon = document.querySelector(".post__btn-icon");
     postTitle.textContent = post.title;
     postDescription.textContent = post.description;
     const date = calcuteRelativeTimeDifference(post.createdAt);
@@ -50,7 +54,7 @@ window.addEventListener("load", () => {
         <li class="main__breadcrumb-item">${post.title}</li>    
       `,
     );
-    shareIcon.addEventListener("click", async (e) => {
+    shareIcon.addEventListener("click", async () => {
       await navigator.share(location.href);
     });
     postInfos.insertAdjacentHTML(
@@ -62,20 +66,61 @@ window.addEventListener("load", () => {
         </li>
       `,
     );
+
     if (userIsLogin) {
+      // Bookmard
+      if (post.bookmarked) {
+        bookMarkIcon.style.color = "red";
+        bookmarkStatus = true;
+      } else {
+        bookmarkStatus = false;
+      }
+
+      bookMarkIconBtn.addEventListener("click", async () => {
+        const postID = getUrlParam("id");
+
+        if (bookmarkStatus) {
+          const res = await fetch(`${baseUrl}/v1/bookmark/${postID}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (res.status === 200) {
+            bookmarkStatus = false;
+            bookMarkIcon.style.color = "gray";
+          }
+        } else {
+          const res = await fetch(`${baseUrl}/v1/bookmark/${postID}`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (res.status === 201) {
+            bookmarkStatus = true;
+            bookMarkIcon.style.color = "red";
+          }
+        }
+      });
+
+      // Note
       if (post.note) {
-        noteTextArea.textContent = post.note.content;
+        noteTextarea.value = post.note.content;
         noteTrashIcon.style.display = "block";
         noteID = post.note._id;
       }
-      noteTextArea.addEventListener("keyup", (e) => {
-        if (e.target.value.trim()) {
+      noteTextarea.addEventListener("keyup", (event) => {
+        if (event.target.value.trim()) {
           noteTrashIcon.style.display = "block";
         } else {
           noteTrashIcon.style.display = "none";
         }
       });
-      noteTextArea.addEventListener("blur", async (e) => {
+
+      noteTextarea.addEventListener("blur", async (event) => {
         if (noteID) {
           await fetch(`${baseUrl}/v1/note/${noteID}`, {
             method: "PUT",
@@ -83,7 +128,9 @@ window.addEventListener("load", () => {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ postId: post._id, content: e.target.value }),
+            body: JSON.stringify({
+              content: event.target.value,
+            }),
           });
         } else {
           await fetch(`${baseUrl}/v1/note`, {
@@ -92,44 +139,23 @@ window.addEventListener("load", () => {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ content: e.target.value }),
+            body: JSON.stringify({
+              postId: post._id,
+              content: event.target.value,
+            }),
           });
         }
       });
-      noteTrashIcon.addEventListener("click", (e) => {
-        noteTextArea.value = "";
+
+      noteTrashIcon.addEventListener("click", () => {
+        noteTextarea.value = "";
         noteTrashIcon.style.display = "none";
       });
     } else {
-      noteTextArea.addEventListener("focus", (e) => {
-        e.preventDefault();
+      noteTextarea.addEventListener("focus", (event) => {
+        event.preventDefault();
         showModal("login-modal", "login-modal--active");
       });
     }
-    post.dynamicFields.map((filed) => {
-      postInfos.insertAdjacentHTML(
-        "beforeend",
-        `
-          <li class="post__info-item">
-            <span class="post__info-key">${filed.name}</span>
-            <span class="post__info-value">${filed.data}</span>
-          </li>
-        `,
-      );
-    });
-    phoneInfoBtn.addEventListener("click", () => {
-      showSwal(
-        `شماره تماس ${post.creator.phone}`,
-        undefined,
-        "تماس گرفتن",
-        () => {},
-      );
-    });
-    postFeedbackIcons.forEach((icons) => {
-      icons.addEventListener("click", () => {
-        postFeedbackIcons.forEach((icons) => icons.classList.remove("active"));
-        icons.classList.add("active");
-      });
-    });
   });
 });

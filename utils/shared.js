@@ -72,13 +72,18 @@ const getPostCategories = async () => {
   const response = await res.json();
   return response.data.categories;
 };
+
+//
+
 const getPostDetails = async () => {
   const postID = getUrlParam("id");
   const token = getToken();
+  const headers = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
   const res = await fetch(`${baseUrl}/v1/post/${postID}`, {
-    headers: {
-      Authorization: token ? `Bearer ${token}` : null,
-    },
+    headers,
   });
   const response = await res.json();
   return response.data.post;

@@ -49,13 +49,15 @@ const getToken = () => {
 };
 const isLogin = async () => {
   const token = getToken();
+  if (token) {
+    return false;
+  }
   const res = await fetch(`${baseUrl}/v1/auth/me`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  return res.status === 200;
 };
 const showSwal = (title, icon, buttons, callback) => {
   swal({
