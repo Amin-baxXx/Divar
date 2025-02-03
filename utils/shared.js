@@ -1,5 +1,10 @@
 "use strict";
-import { getFromLocalStorage, getUrlParam, saveLocalStorage } from "./utils.js";
+import {
+  getFromLocalStorage,
+  getToken,
+  getUrlParam,
+  saveLocalStorage,
+} from "./utils.js";
 
 const baseUrl = "https://divarapi.liara.run";
 
@@ -63,12 +68,18 @@ const getPosts = async (citiesIDs) => {
 };
 const getPostCategories = async () => {
   const res = await fetch(`${baseUrl}/v1/category`);
+
   const response = await res.json();
   return response.data.categories;
 };
 const getPostDetails = async () => {
   const postID = getUrlParam("id");
-  const res = await fetch(`${baseUrl}/v1/post/${postID}`);
+  const token = getToken();
+  const res = await fetch(`${baseUrl}/v1/post/${postID}`, {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : null,
+    },
+  });
   const response = await res.json();
   return response.data.post;
 };

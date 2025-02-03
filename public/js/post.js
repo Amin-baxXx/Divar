@@ -1,17 +1,20 @@
-import { getPostDetails } from "../../utils/shared.js";
+import { baseUrl, getPostDetails } from "../../utils/shared.js";
 import {
   calcuteRelativeTimeDifference,
   isLogin,
   showModal,
   showSwal,
+  getToken,
 } from "../../utils/utils.js";
 
 window.addEventListener("load", () => {
-  getPostDetails().then((post) => {
+  getPostDetails().then(async (post) => {
     console.log(post);
     const landing = document.querySelector("#loading-container");
     landing.style.display = "none";
-    const userIsLogin = isLogin();
+    const userIsLogin = await isLogin();
+    const token = await getToken();
+    let noteID = null;
     const postTitle = document.querySelector("#post-title");
     const postDescription = document.querySelector("#post-description");
     const postLocation = document.querySelector("#post-location");
@@ -59,15 +62,40 @@ window.addEventListener("load", () => {
         </li>
       `,
     );
-    if (isLogin()) {
+    if (userIsLogin) {
+      if (post.note) {
+        noteTextArea.textContent = post.note.content;
+        noteTrashIcon.style.display = "block";
+        noteID = post.note._id;
+      }
       noteTextArea.addEventListener("keyup", (e) => {
         if (e.target.value.trim()) {
           noteTrashIcon.style.display = "block";
         } else {
-          noteTrashIcon.style.display = "block";
+          noteTrashIcon.style.display = "none";
         }
       });
-      noteTextArea.addEventListener("blur", (e) => {});
+      noteTextArea.addEventListener("blur", async (e) => {
+        if (noteID) {
+          await fetch(`${baseUrl}/v1/note/${noteID}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ postId: post._id, content: e.target.value }),
+          });
+        } else {
+          await fetch(`${baseUrl}/v1/note`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ content: e.target.value }),
+          });
+        }
+      });
       noteTrashIcon.addEventListener("click", (e) => {
         noteTextArea.value = "";
         noteTrashIcon.style.display = "none";

@@ -1,6 +1,8 @@
 const saveLocalStorage = (key, value) => {
   localStorage.setItem(key, JSON.stringify(value));
 };
+import { baseUrl } from "./shared.js";
+
 const getFromLocalStorage = (key) => {
   return JSON.parse(localStorage.getItem(key));
 };
@@ -41,8 +43,19 @@ const hideModal = (id, className) => {
   const element = document.querySelector(`#${id}`);
   element?.classList.remove(className);
 };
-const isLogin = () => {
-  return false;
+const getToken = () => {
+  const token = getFromLocalStorage("token");
+  return token;
+};
+const isLogin = async () => {
+  const token = getToken();
+  const res = await fetch(`${baseUrl}/v1/auth/me`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return res.status === 200;
 };
 const showSwal = (title, icon, buttons, callback) => {
   swal({
@@ -62,4 +75,5 @@ export {
   hideModal,
   isLogin,
   showSwal,
+  getToken,
 };

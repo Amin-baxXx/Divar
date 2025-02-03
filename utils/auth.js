@@ -1,5 +1,5 @@
 import { baseUrl } from "./shared.js";
-import { hideModal, showSwal } from "./utils.js";
+import { hideModal, saveLocalStorage, showSwal } from "./utils.js";
 const step1LoginFormError = document.querySelector(".step-1-login-form__error");
 const step2LoginFormError = document.querySelector(".step-2-login-form__error");
 const phoneNumberInput = document.querySelector(".login-modal__input");
@@ -65,6 +65,8 @@ const verifyOtp = async () => {
       body: JSON.stringify({ phone: phoneNumber, otp: userOtp }),
     });
     if (res.status === 200 || res.status === 201) {
+      const response = await res.json();
+      saveLocalStorage("token", response.data.token);
       loading.classList.remove("active-login-loader");
       hideModal("login-modal", "login-modal--active");
       showSwal(
@@ -78,12 +80,9 @@ const verifyOtp = async () => {
       otpInput.value = "";
       step2LoginFormError.textContent = "کد وارد شده نامعتبر هست😶‍🌫️";
     }
-    console.log(res);
-    // location.href = "/login";
   } else {
     loading.classList.remove("active-login-loader");
     step2LoginFormError.textContent = "کد وارد شده نامعتبر هست😶‍🌫️";
-    return console.log("HELLO WORLD");
   }
 };
 export { submitNumber, verifyOtp };
