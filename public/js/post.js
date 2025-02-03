@@ -1,5 +1,10 @@
 import { getPostDetails } from "../../utils/shared.js";
-import { calcuteRelativeTimeDifference, isLogin } from "../../utils/utils.js";
+import {
+  calcuteRelativeTimeDifference,
+  isLogin,
+  showModal,
+  showSwal,
+} from "../../utils/utils.js";
 
 window.addEventListener("load", () => {
   getPostDetails().then((post) => {
@@ -17,7 +22,9 @@ window.addEventListener("load", () => {
     const mainSlider = document.querySelector("#main-slider-wrapper");
     const secondSlider = document.querySelector("#secend-slider-wrapper");
     const noteTextArea = document.querySelector("#note-textarea");
-    const postFeedbackIcons = document.querySelector(".post_feedback_icon");
+    const postFeedbackIcons = document.querySelectorAll(".post_feedback_icon");
+    const phoneInfoBtn = document.querySelector("#phone-info-btn");
+    const noteTrashIcon = document.querySelector("#note-trash-icon");
     postTitle.textContent = post.title;
     postDescription.textContent = post.description;
     const date = calcuteRelativeTimeDifference(post.createdAt);
@@ -52,7 +59,25 @@ window.addEventListener("load", () => {
         </li>
       `,
     );
-
+    if (isLogin()) {
+      noteTextArea.addEventListener("keyup", (e) => {
+        if (e.target.value.trim()) {
+          noteTrashIcon.style.display = "block";
+        } else {
+          noteTrashIcon.style.display = "block";
+        }
+      });
+      noteTextArea.addEventListener("blur", (e) => {});
+      noteTrashIcon.addEventListener("click", (e) => {
+        noteTextArea.value = "";
+        noteTrashIcon.style.display = "none";
+      });
+    } else {
+      noteTextArea.addEventListener("focus", (e) => {
+        e.preventDefault();
+        showModal("login-modal", "login-modal--active");
+      });
+    }
     post.dynamicFields.map((filed) => {
       postInfos.insertAdjacentHTML(
         "beforeend",
@@ -63,6 +88,20 @@ window.addEventListener("load", () => {
           </li>
         `,
       );
+    });
+    phoneInfoBtn.addEventListener("click", () => {
+      showSwal(
+        `شماره تماس ${post.creator.phone}`,
+        undefined,
+        "تماس گرفتن",
+        () => {},
+      );
+    });
+    postFeedbackIcons.forEach((icons) => {
+      icons.addEventListener("click", () => {
+        postFeedbackIcons.forEach((icons) => icons.classList.remove("active"));
+        icons.classList.add("active");
+      });
     });
   });
 });

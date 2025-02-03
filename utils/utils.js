@@ -42,7 +42,14 @@ const hideModal = (id, className) => {
   element?.classList.remove(className);
 };
 const isLogin = () => {
-  return true;
+  return false;
+};
+const showSwal = (title, icon, buttons, callback) => {
+  swal({
+    title: title,
+    icon: icon,
+    buttons: buttons,
+  }).then((result) => callback(result));
 };
 export {
   getFromLocalStorage,
@@ -54,4 +61,5 @@ export {
   showModal,
   hideModal,
   isLogin,
+  showSwal,
 };

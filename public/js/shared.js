@@ -14,6 +14,7 @@ import {
   addParamToUrl,
   removeParamFromUrl,
 } from "../../utils/utils.js";
+import { submitNumber, verifyOtp } from "../../utils/auth.js";
 window.addEventListener("load", () => {
   let selectedCities = [];
   let allCities = [];
@@ -33,8 +34,14 @@ window.addEventListener("load", () => {
   const cityModalCitiesInput = document.querySelector(
     "#city-modal-search-input",
   );
+  const submitPhoneNumberBtn = document.querySelector(
+    ".submit_phone_number_btn",
+  );
+  const loginBtn = document.querySelector(".login_btn");
   const headerCategoryBtn = document.querySelector(".header__category-btn");
   const allCategoriesPosts = document.querySelector("#all-categories-posts");
+  const loginModalOverlay = document.querySelector(".login_modal_overlay");
+  const loginModalCloseIcon = document.querySelector(".login-modal__icon");
   const categoryModalOverlay = document.querySelector(
     ".category_modal_overlay",
   );
@@ -99,6 +106,14 @@ window.addEventListener("load", () => {
     window.categoryClickHandler = (categoryID) => {
       addParamToUrl("categoryID", categoryID);
     };
+  });
+  submitPhoneNumberBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    submitNumber();
+  });
+  loginBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    verifyOtp();
   });
   headerCategoryBtn?.addEventListener("click", () => {
     console.log("clicked");
@@ -378,5 +393,11 @@ window.addEventListener("load", () => {
       citiesModalList.innerHTML = "";
       showProvinces(allCities);
     }
+  });
+  loginModalOverlay.addEventListener("click", () => {
+    hideModal("login-modal", "login-modal--active");
+  });
+  loginModalCloseIcon.addEventListener("click", () => {
+    hideModal("login-modal", "login-modal--active");
   });
 });
