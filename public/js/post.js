@@ -157,5 +157,45 @@ window.addEventListener("load", () => {
         showModal("login-modal", "login-modal--active");
       });
     }
+    if (post.pics.length) {
+      post.pics.map((pic) => {
+        mainSlider.insertAdjacentHTML(
+          "beforeend",
+          `
+        <div class="swiper-slide">
+        <img src="${baseUrl}/${pic.path}" alt="">
+       </div>
+        `,
+        );
+        secondSlider.insertAdjacentHTML(
+          "beforeend",
+          `
+        
+        <div class="swiper-slide">
+        <img src="${baseUrl}/${pic.path}" alt="">
+       </div>
+        `,
+        );
+      });
+    } else {
+      postPreview.style.display = "none";
+    }
+    const mainSliderConfigs = new Swiper(".mySwiper", {
+      spaceBetween: 10,
+      rewind: true,
+      slidesPerView: 4,
+      freeMode: true,
+      watchSlidesProgress: true,
+    });
+    const secondSliderConfigs = new Swiper(".mySwiper2", {
+      spaceBetween: 10,
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+      thumbs: {
+        swiper: mainSliderConfigs,
+      },
+    });
   });
 });

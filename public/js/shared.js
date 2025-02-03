@@ -5,6 +5,7 @@ import {
   getAndShowHeaderCityLocation,
   getAllLocations,
   getPostCategories,
+  showPanelLinks,
 } from "../../utils/shared.js";
 import {
   showModal,
@@ -14,11 +15,12 @@ import {
   addParamToUrl,
   removeParamFromUrl,
 } from "../../utils/utils.js";
-import { submitNumber, verifyOtp } from "../../utils/auth.js";
+import { submitNumber, reqNewOtp, verifyOtp } from "../../utils/auth.js";
 window.addEventListener("load", () => {
   let selectedCities = [];
   let allCities = [];
   getAndShowSocials();
+  showPanelLinks();
   getAndShowHeaderCityLocation();
   const globalSearchInput = document.getElementById("global_search_input");
   const headerCity = document.querySelector(".header__city");
@@ -37,6 +39,7 @@ window.addEventListener("load", () => {
   const submitPhoneNumberBtn = document.querySelector(
     ".submit_phone_number_btn",
   );
+  const reqNewCodeBtn = document.querySelector(".req_new_code_btn");
   const loginBtn = document.querySelector(".login_btn");
   const headerCategoryBtn = document.querySelector(".header__category-btn");
   const allCategoriesPosts = document.querySelector("#all-categories-posts");
@@ -114,6 +117,10 @@ window.addEventListener("load", () => {
   loginBtn?.addEventListener("click", (e) => {
     e.preventDefault();
     verifyOtp();
+  });
+  reqNewCodeBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    reqNewOtp();
   });
   headerCategoryBtn?.addEventListener("click", () => {
     console.log("clicked");
