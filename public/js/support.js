@@ -47,5 +47,58 @@ window.addEventListener("load", () => {
         `,
       );
     });
+    let articles = [];
+    supportArticlesCategory.map((category) => {
+      articles.push(...category.articles);
+    });
+    const searchInput = document.querySelector("#search-input");
+    const removeIcon = document.querySelector("#remove-icon");
+    const searchResult = document.querySelector("#search-result");
+    searchInput.addEventListener("keyup", (e) => {
+      if (e.target.value.trim()) {
+        searchResult.classList.add("active");
+        removeIcon.classList.add("active");
+        console.log(e);
+        if (e.code === "Enter") {
+          location.href = `/pages/support/search.html?key=${event.target.value.trim()}`;
+        }
+
+        const filteredArticles = articles.filter((article) =>
+          article.title.includes(e.target.value.trim()),
+        );
+
+        if (filteredArticles.length) {
+          searchResult.innerHTML = `
+            <a href="/pages/support/search.html?${e.target.value.trim()}">
+              <i class="bi bi-search"></i>
+              ${e.target.value.trim()}
+            </a>
+          `;
+
+          filteredArticles.map((article) => {
+            searchResult.insertAdjacentHTML(
+              "beforeend",
+              `
+                <a href="/pages/support/article.html?id=${article._id}">
+                  <i class="bi bi-card-text"></i>
+                  ${article.title}
+                </a>
+              `,
+            );
+          });
+        } else {
+          searchResult.innerHTML = `
+            <a href="/pages/support/search.html?${e.target.value.trim()}">
+              <i class="bi bi-search"></i>
+              ${e.target.value.trim()}
+            </a>
+          `;
+        }
+      } else {
+        searchInput.value = "";
+        searchResult.classList.remove("active");
+        removeIcon.classList.remove("active");
+      }
+    });
   });
 });
