@@ -56,7 +56,7 @@ window.addEventListener("load", () => {
   });
   getPostCategories().then((categories) => {
     categories.forEach((category) => {
-      categoriesList.insertAdjacentHTML(
+      categoriesList?.insertAdjacentHTML(
         "beforeend",
         `
           <li class="header__category-menu-item" onmouseenter="showActiveCategorySubs('${category._id}')">
@@ -79,10 +79,10 @@ window.addEventListener("load", () => {
         (category) => category._id === categoryID,
       );
 
-      categoryResults.innerHTML = "";
+      categoryResults ? (categoryResults.innerHTML = "") : null;
 
       category.subCategories.map((subCategory) => {
-        categoryResults.insertAdjacentHTML(
+        categoryResults?.insertAdjacentHTML(
           "beforeend",
           `
             <div>
@@ -118,7 +118,7 @@ window.addEventListener("load", () => {
     e.preventDefault();
     verifyOtp();
   });
-  reqNewCodeBtn.addEventListener("click", (e) => {
+  reqNewCodeBtn?.addEventListener("click", (e) => {
     e.preventDefault();
     reqNewOtp();
   });
@@ -166,9 +166,9 @@ window.addEventListener("load", () => {
     showProvinces(allCities);
   });
   const showProvinces = (data) => {
-    citiesModalList.innerHTML = "";
-    cityModalCitiesInput.scrollTo(0, 0);
-    data.provinces.forEach((province) => {
+    citiesModalList ? (citiesModalList.innerHTML = "") : null;
+    cityModalCitiesInput?.scrollTo(0, 0);
+    data.provinces?.forEach((province) => {
       citiesModalList?.insertAdjacentHTML(
         "beforeend",
         `
@@ -307,7 +307,7 @@ window.addEventListener("load", () => {
     deleteAllSelectionCity.style.display = "block";
     addCityToModal(selectedCities);
   });
-  deleteAllSelectionCity.addEventListener("click", (e) => {
+  deleteAllSelectionCity?.addEventListener("click", (e) => {
     deSelectAllCitiesfromModal();
     selectedCities = [];
     addCityToModal(selectedCities);
@@ -373,7 +373,7 @@ window.addEventListener("load", () => {
     );
     showProvinces(allCities);
   });
-  cityModalCitiesInput.addEventListener("input", (e) => {
+  cityModalCitiesInput?.addEventListener("input", (e) => {
     console.log(e.value);
     const filteredCities = allCities.cities.filter((city) => {
       return city.name.startsWith(e.target.value);
@@ -401,10 +401,10 @@ window.addEventListener("load", () => {
       showProvinces(allCities);
     }
   });
-  loginModalOverlay.addEventListener("click", () => {
+  loginModalOverlay?.addEventListener("click", () => {
     hideModal("login-modal", "login-modal--active");
   });
-  loginModalCloseIcon.addEventListener("click", () => {
+  loginModalCloseIcon?.addEventListener("click", () => {
     hideModal("login-modal", "login-modal--active");
   });
 });
