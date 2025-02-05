@@ -6,6 +6,7 @@ import {
   saveLocalStorage,
   showModal,
   isLogin,
+  getMe,
 } from "./utils.js";
 
 const baseUrl = "https://divarapi.liara.run";
@@ -90,9 +91,8 @@ const getPostDetails = async () => {
 const showPanelLinks = async () => {
   const dropDown = document.querySelector(".header_dropdown_menu");
   const userLogin = await isLogin();
-
-  dropDown.innerHTML = "";
-
+  console.log(userLogin);
+  dropDown ? (dropDown.innerHTML = "") : null;
   if (dropDown) {
     if (userLogin) {
       getMe().then((user) => {

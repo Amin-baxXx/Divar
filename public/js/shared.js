@@ -14,15 +14,19 @@ import {
   saveLocalStorage,
   addParamToUrl,
   removeParamFromUrl,
+  isLogin,
 } from "../../utils/utils.js";
 import { submitNumber, reqNewOtp, verifyOtp } from "../../utils/auth.js";
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
   let selectedCities = [];
   let allCities = [];
+  const isUserLogin = await isLogin();
   getAndShowSocials();
   showPanelLinks();
   getAndShowHeaderCityLocation();
+
   const globalSearchInput = document.getElementById("global_search_input");
+  const createPostBtn = document.querySelector(".create_post_btn");
   const headerCity = document.querySelector(".header__city");
   const deleteAllSelectionCity = document.querySelector("#delete-all-cities");
   const header__form = document.querySelector(".header__form");
@@ -148,7 +152,6 @@ window.addEventListener("load", () => {
       );
     });
   };
-
   window.removeCityFromModal = (cityID) => {
     const currentCity = document.querySelector(`#city-${cityID}`);
     if (currentCity) {
@@ -336,6 +339,7 @@ window.addEventListener("load", () => {
     }
   });
   globalSearchInput?.addEventListener("click", (e) => {
+    console.log("HEllo");
     showModal(
       "header__searchbar-dropdown",
       "header__searchbar-dropdown--active",
@@ -406,5 +410,13 @@ window.addEventListener("load", () => {
   });
   loginModalCloseIcon?.addEventListener("click", () => {
     hideModal("login-modal", "login-modal--active");
+  });
+  createPostBtn?.addEventListener("click", () => {
+    if (isUserLogin) {
+      location.href = "../../pages/new.html";
+    } else {
+      showModal("login-modal", "login-modal--active");
+      hideModal("header__category-menu", "header__category-menu--active");
+    }
   });
 });

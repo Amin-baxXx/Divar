@@ -47,25 +47,23 @@ const getToken = () => {
   const token = getFromLocalStorage("token");
   return token;
 };
+
 const isLogin = async () => {
   const token = getToken();
-  if (token) {
+
+  if (!token) {
     return false;
   }
+
   const res = await fetch(`${baseUrl}/v1/auth/me`, {
-    method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
+
+  return res.status === 200 ? true : false;
 };
-const showSwal = (title, icon, buttons, callback) => {
-  swal({
-    title: title,
-    icon: icon,
-    buttons: buttons,
-  }).then((result) => callback(result));
-};
+
 const getMe = async () => {
   const token = getToken();
 
@@ -82,6 +80,14 @@ const getMe = async () => {
   const response = await res.json();
 
   return response.data.user;
+};
+
+const showSwal = (title, icon, buttons, callback) => {
+  swal({
+    title: title,
+    icon: icon,
+    buttons: buttons,
+  }).then((result) => callback(result));
 };
 
 export {

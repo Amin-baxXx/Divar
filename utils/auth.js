@@ -73,7 +73,7 @@ const verifyOtp = async () => {
 
     if (res.status === 200 || res.status === 201) {
       const response = await res.json();
-      saveInLocalStorage("token", response.data.token);
+      saveLocalStorage("token", response.data.token);
       loading.classList.remove("active-login-loader");
       hideModal("login-modal", "login-modal--active");
       showSwal(
