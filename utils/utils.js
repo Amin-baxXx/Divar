@@ -89,13 +89,34 @@ const showSwal = (title, icon, buttons, callback) => {
     buttons: buttons,
   }).then((result) => callback(result));
 };
+const paginateItems = (
+  href,
+  paginationContainer,
+  currentPage,
+  totalItems,
+  itemPerPage,
+) => {
+  paginationContainer ? (paginationContainer.innerHTML = "") : "";
+  let paginatedCount = Math.ceil(totalItems / itemPerPage);
+
+  for (let i = 1; i < paginatedCount + 1; i++) {
+    paginationContainer?.insertAdjacentHTML(
+      "beforeend",
+      `
+        <li class="${i === Number(currentPage) ? "active" : ""}">
+          <a href="${href}?page=${i}">${i}</a>
+        </li>
+      `,
+    );
+  }
+};
 
 export {
-  getFromLocalStorage,
   saveLocalStorage,
+  getFromLocalStorage,
   addParamToUrl,
-  calcuteRelativeTimeDifference,
   getUrlParam,
+  calcuteRelativeTimeDifference,
   removeParamFromUrl,
   showModal,
   hideModal,
@@ -103,4 +124,5 @@ export {
   showSwal,
   getToken,
   getMe,
+  paginateItems,
 };

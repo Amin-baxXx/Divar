@@ -10,7 +10,6 @@ window.addEventListener("load", async () => {
   const searchInput = document.querySelector("#search-input");
   const resultContaienrModal = document.querySelector("#result-container");
   const removeIcon = document.querySelector("#remove-icon");
-
   const isUserLogin = await isLogin();
 
   if (!isUserLogin) {

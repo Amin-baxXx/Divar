@@ -1,45 +1,69 @@
 import { baseUrl, getPostDetails } from "../../utils/shared.js";
 import {
   calcuteRelativeTimeDifference,
-  isLogin,
-  showModal,
-  showSwal,
+  getFromLocalStorage,
   getToken,
   getUrlParam,
+  isLogin,
+  saveLocalStorage,
+  showModal,
+  showSwal,
 } from "../../utils/utils.js";
 
 window.addEventListener("load", () => {
   getPostDetails().then(async (post) => {
-    console.log(post);
-    const landing = document.querySelector("#loading-container");
-    landing.style.display = "none";
-    const userIsLogin = await isLogin();
-    const token = await getToken();
+    const loading = document.querySelector("#loading-container");
+    loading.style.display = "none";
+
+    const isUserLogin = await isLogin();
+    const token = getToken();
+
     let noteID = null;
     let bookmarkStatus = null;
+
+    const recentSeens = getFromLocalStorage("recent-seens");
+    const isPostSeen = recentSeens?.some((postID) => postID === post._id);
+
+    if (!isPostSeen && recentSeens) {
+      saveLocalStorage("recent-seens", [...recentSeens, post._id]);
+    } else {
+      if (recentSeens) {
+        if (!isPostSeen) {
+          saveLocalStorage("recent-seens", [...recentSeens, post._id]);
+        }
+      } else {
+        saveLocalStorage("recent-seens", [post._id]);
+      }
+    }
+
     const postTitle = document.querySelector("#post-title");
     const postDescription = document.querySelector("#post-description");
     const postLocation = document.querySelector("#post-location");
-    const postBreadCrumb = document.querySelector("#breadcrumb");
+    const postBreadcrumb = document.querySelector("#breadcrumb");
     const shareIcon = document.querySelector("#share-icon");
     const postInfos = document.querySelector("#post-infoes-list");
     const postPreview = document.querySelector("#post-preview");
     const mainSlider = document.querySelector("#main-slider-wrapper");
-    const secondSlider = document.querySelector("#secend-slider-wrapper");
+    const secendSlider = document.querySelector("#secend-slider-wrapper");
     const noteTextarea = document.querySelector("#note-textarea");
     const postFeedbackIcons = document.querySelectorAll(".post_feedback_icon");
     const phoneInfoBtn = document.querySelector("#phone-info-btn");
     const noteTrashIcon = document.querySelector("#note-trash-icon");
-    const bookMarkIconBtn = document.querySelector("#bookmark-icon-btn");
-    const bookMarkIcon = document.querySelector(".post__btn-icon");
-    postTitle.textContent = post.title;
-    postDescription.textContent = post.description;
+    const bookmarkIconBtn = document.querySelector("#bookmark-icon-btn");
+    const bookmarkIcon = bookmarkIconBtn.querySelector(".bi");
+
+    postTitle.innerHTML = post.title;
+    postDescription.innerHTML = post.description;
+
     const date = calcuteRelativeTimeDifference(post.createdAt);
-    postLocation.textContent = ` ${date}پیش در ${post.city.name}, ${post.neighborhood.name ? post.neighborhood.name : ""}  `;
-    postBreadCrumb.insertAdjacentHTML(
+    postLocation.innerHTML = `${date} در ${post.city.name}، ${
+      post.neighborhood ? post?.neighborhood?.name : ""
+    }`;
+
+    postBreadcrumb.insertAdjacentHTML(
       "beforeend",
       `
-     <li class="main__breadcrumb-item">
+        <li class="main__breadcrumb-item">
           <a href='/pages/posts.html?categoryID=${post.breadcrumbs.category._id}' id="category-breadcrumb">${post.breadcrumbs.category.title}</a>
           <i class="main__breadcrumb-icon bi bi-chevron-left"></i>
         </li>
@@ -54,9 +78,11 @@ window.addEventListener("load", () => {
         <li class="main__breadcrumb-item">${post.title}</li>    
       `,
     );
+
     shareIcon.addEventListener("click", async () => {
       await navigator.share(location.href);
     });
+
     postInfos.insertAdjacentHTML(
       "beforeend",
       `
@@ -67,16 +93,50 @@ window.addEventListener("load", () => {
       `,
     );
 
-    if (userIsLogin) {
+    post.dynamicFields.map((filed) => {
+      postInfos.insertAdjacentHTML(
+        "beforeend",
+        `
+          <li class="post__info-item">
+            <span class="post__info-key">${filed.name}</span>
+            <span class="post__info-value">${
+              typeof filed.data === "boolean"
+                ? filed.data === true
+                  ? "دارد"
+                  : "ندارد"
+                : filed.data
+            }</span>
+          </li>
+        `,
+      );
+    });
+
+    phoneInfoBtn.addEventListener("click", () => {
+      showSwal(
+        `شماره تماس: ${post.creator.phone}`,
+        null,
+        "تماس گرفتن",
+        () => {},
+      );
+    });
+
+    postFeedbackIcons.forEach((icon) => {
+      icon.addEventListener("click", () => {
+        postFeedbackIcons.forEach((icon) => icon.classList.remove("active"));
+        icon.classList.add("active");
+      });
+    });
+
+    if (isUserLogin) {
       // Bookmard
       if (post.bookmarked) {
-        bookMarkIcon.style.color = "red";
+        bookmarkIcon.style.color = "red";
         bookmarkStatus = true;
       } else {
         bookmarkStatus = false;
       }
 
-      bookMarkIconBtn.addEventListener("click", async () => {
+      bookmarkIconBtn.addEventListener("click", async () => {
         const postID = getUrlParam("id");
 
         if (bookmarkStatus) {
@@ -89,7 +149,7 @@ window.addEventListener("load", () => {
 
           if (res.status === 200) {
             bookmarkStatus = false;
-            bookMarkIcon.style.color = "gray";
+            bookmarkIcon.style.color = "gray";
           }
         } else {
           const res = await fetch(`${baseUrl}/v1/bookmark/${postID}`, {
@@ -101,7 +161,7 @@ window.addEventListener("load", () => {
 
           if (res.status === 201) {
             bookmarkStatus = true;
-            bookMarkIcon.style.color = "red";
+            bookmarkIcon.style.color = "red";
           }
         }
       });
@@ -157,29 +217,31 @@ window.addEventListener("load", () => {
         showModal("login-modal", "login-modal--active");
       });
     }
+
     if (post.pics.length) {
       post.pics.map((pic) => {
         mainSlider.insertAdjacentHTML(
           "beforeend",
           `
-        <div class="swiper-slide">
-        <img src="${baseUrl}/${pic.path}" alt="">
-       </div>
-        `,
+            <div class="swiper-slide">
+              <img src="${baseUrl}/${pic.path}" />
+            </div>
+          `,
         );
-        secondSlider.insertAdjacentHTML(
+
+        secendSlider.insertAdjacentHTML(
           "beforeend",
           `
-        
-        <div class="swiper-slide">
-        <img src="${baseUrl}/${pic.path}" alt="">
-       </div>
-        `,
+            <div class="swiper-slide">
+              <img src="${baseUrl}/${pic.path}" />
+            </div>
+          `,
         );
       });
     } else {
       postPreview.style.display = "none";
     }
+
     const mainSliderConfigs = new Swiper(".mySwiper", {
       spaceBetween: 10,
       rewind: true,
@@ -187,12 +249,15 @@ window.addEventListener("load", () => {
       freeMode: true,
       watchSlidesProgress: true,
     });
+
     const secondSliderConfigs = new Swiper(".mySwiper2", {
       spaceBetween: 10,
+      rewind: true,
       navigation: {
         nextEl: ".swiper-button-next",
         prevEl: ".swiper-button-prev",
       },
+
       thumbs: {
         swiper: mainSliderConfigs,
       },
