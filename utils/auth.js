@@ -124,4 +124,15 @@ const reqNewOtp = async () => {
     }, 100);
   }
 };
-export { submitNumber, verifyOtp, reqNewOtp };
+const logout = async () => {
+  showSwal("آیا از خروج مطمئن هستید؟", "warning", ["خیر", "بله"], (result) => {
+    if (result) {
+      localStorage.removeItem("token");
+      showSwal("با موفقیت خارج شدید", "success", "رفتن به هوم پیج", () => {
+        location.href = "/index.html";
+      });
+    }
+  });
+};
+
+export { submitNumber, verifyOtp, reqNewOtp, logout };
